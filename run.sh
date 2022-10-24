@@ -7,7 +7,7 @@ MONGODB_PORT=${MONGODB_PORT_1_27017_TCP_PORT:-${MONGODB_PORT}}
 MONGODB_USER=${MONGODB_USER:-${MONGODB_ENV_MONGODB_USER}}
 MONGODB_PASS=${MONGODB_PASS:-${MONGODB_ENV_MONGODB_PASS}}
 
-S3PATH="s3://$BUCKET/$BACKUP_FOLDER"
+S3PATH="s3://$S3_BUCKET/$BACKUP_FOLDER"
 
 [[ ( -z "${MONGODB_USER}" ) && ( -n "${MONGODB_PASS}" ) ]] && MONGODB_USER='admin'
 
@@ -15,19 +15,19 @@ S3PATH="s3://$BUCKET/$BACKUP_FOLDER"
 [[ ( -n "${MONGODB_PASS}" ) ]] && PASS_STR=" --password '${MONGODB_PASS}'"
 [[ ( -n "${MONGODB_DB}" ) ]] && DB_STR=" --db ${MONGODB_DB}"
 
-# Export AWS Credentials into env file for cron job
-printenv | sed 's/^\([a-zA-Z0-9_]*\)=\(.*\)$/export \1="\2"/g' | grep -E "^export AWS" > /root/project_env.sh
+# Export S3 Credentials into env file for cron job
+printenv | sed 's/^\([a-zA-Z0-9_]*\)=\(.*\)$/export \1="\2"/g' | grep -e "^export AWS" -e "^export S3_" > /root/project_env.sh
 
 echo "=> Creating backup script"
 rm -f /backup.sh
 cat <<EOF >> /backup.sh
 #!/bin/bash
 TIMESTAMP=\`/bin/date +"%Y%m%dT%H%M%S"\`
-BACKUP_NAME=\${TIMESTAMP}.dump.gz
-S3BACKUP=${S3PATH}\${BACKUP_NAME}
-S3LATEST=${S3PATH}latest.dump.gz
+BACKUP_FILE_NAME=\${TIMESTAMP}.dump.gz
+S3_BACKUP_PATH=${S3PATH}\${BACKUP_FILE_NAME}
+S3_LATEST_BACUKP_PATH=${S3PATH}latest.dump.gz
 echo "=> Backup started"
-if mongodump --host ${MONGODB_HOST} --port ${MONGODB_PORT} ${USER_STR}${PASS_STR}${DB_STR} --archive=\${BACKUP_NAME} --gzip ${EXTRA_OPTS} && aws s3 cp \${BACKUP_NAME} \${S3BACKUP} && aws s3 cp \${S3BACKUP} \${S3LATEST} && rm \${BACKUP_NAME} ;then
+if mongodump --host ${MONGODB_HOST} --port ${MONGODB_PORT} ${USER_STR}${PASS_STR}${DB_STR} --archive=\${BACKUP_FILE_NAME} --gzip ${EXTRA_OPTS} && aws s3 cp \${BACKUP_FILE_NAME} \${S3_BACKUP_PATH} --endpoint-url=\${S3_ENDPOINT} && aws s3 cp \${S3_BACKUP_PATH} \${S3_LATEST_BACUKP_PATH} --endpoint-url=\${S3_ENDPOINT} && rm \${BACKUP_FILE_NAME} ;then
     echo "   > Backup succeeded"
 else
     echo "   > Backup failed"
@@ -48,7 +48,7 @@ else
 fi
 S3RESTORE=${S3PATH}\${RESTORE_ME}
 echo "=> Restore database from \${RESTORE_ME}"
-if aws s3 cp \${S3RESTORE} \${RESTORE_ME} && mongorestore --host ${MONGODB_HOST} --port ${MONGODB_PORT} ${USER_STR}${PASS_STR}${DB_STR} --drop ${EXTRA_OPTS} --archive=\${RESTORE_ME} --gzip && rm \${RESTORE_ME}; then
+if aws s3 cp \${S3RESTORE} \${RESTORE_ME} --endpoint-url=\${S3_ENDPOINT} && mongorestore --host ${MONGODB_HOST} --port ${MONGODB_PORT} ${USER_STR}${PASS_STR}${DB_STR} --drop ${EXTRA_OPTS} --archive=\${RESTORE_ME} --gzip && rm \${RESTORE_ME}; then
     echo "   Restore succeeded"
 else
     echo "   Restore failed"
