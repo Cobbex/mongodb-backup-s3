@@ -27,6 +27,8 @@ BACKUP_FILE_NAME=\${TIMESTAMP}.dump.gz
 S3_BACKUP_PATH=${S3PATH}${BACKUP_FILE_NAME}
 echo "=> Backup started"
 if mongodump --host ${MONGODB_HOST} --port ${MONGODB_PORT} ${USER_STR}${PASS_STR}${DB_STR} --archive=\${BACKUP_FILE_NAME} --gzip ${EXTRA_OPTS} ;then
+    BACKUP_FILE_SIZE=$(du -sh ./Dockerfile)
+    echo "  > Dump size:" $BACKUP_FILE_SIZE
     echo "  > Dump succeeded"
 else
     echo "  > Dump failed"
