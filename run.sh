@@ -25,9 +25,8 @@ cat <<EOF >> /backup.sh
 TIMESTAMP=\`/bin/date +"%Y%m%dT%H%M%S"\`
 BACKUP_FILE_NAME=\${TIMESTAMP}.dump.gz
 S3_BACKUP_PATH=${S3PATH}\${BACKUP_FILE_NAME}
-S3_LATEST_BACUKP_PATH=${S3PATH}latest.dump.gz
 echo "=> Backup started"
-if mongodump --host ${MONGODB_HOST} --port ${MONGODB_PORT} ${USER_STR}${PASS_STR}${DB_STR} --archive=\${BACKUP_FILE_NAME} --gzip ${EXTRA_OPTS} && aws s3 cp \${BACKUP_FILE_NAME} \${S3_BACKUP_PATH} --endpoint-url=\${S3_ENDPOINT} && aws s3 cp \${S3_BACKUP_PATH} \${S3_LATEST_BACUKP_PATH} --endpoint-url=\${S3_ENDPOINT} && rm \${BACKUP_FILE_NAME} ;then
+if mongodump --host ${MONGODB_HOST} --port ${MONGODB_PORT} ${USER_STR}${PASS_STR}${DB_STR} --archive=\${BACKUP_FILE_NAME} --gzip ${EXTRA_OPTS} && aws s3 cp \${BACKUP_FILE_NAME} \${S3_BACKUP_PATH} --endpoint-url=\${S3_ENDPOINT} && rm \${BACKUP_FILE_NAME} ;then
     echo "   > Backup succeeded"
 else
     echo "   > Backup failed"
