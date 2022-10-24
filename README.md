@@ -6,8 +6,8 @@ This image runs mongodump to backup data using cronjob to an s3 bucket
 
 ```
 docker run -d \
-  --env S3_ACCESS_KEY_ID=s3accesskeyid \
-  --env S3_SECRET_ACCESS_KEY=s3secretaccesskey \
+  --env AWS_ACCESS_KEY_ID=s3accesskeyid \
+  --env AWS_SECRET_ACCESS_KEY=s3secretaccesskey \
   --env S3_BUCKET=my-s3-bucket \
   --env S3_ENDPOINT=s3.endpoint.example.com \
   --env MONGODB_HOST=mongodb.host \
@@ -25,8 +25,8 @@ mongodbbackup:
   links:
     - mongodb
   environment:
-    - S3_ACCESS_KEY_ID=myaccesskeyid
-    - S3_SECRET_ACCESS_KEY=mysecretaccesskey
+    - AWS_ACCESS_KEY_ID=myaccesskeyid
+    - AWS_SECRET_ACCESS_KEY=mysecretaccesskey
     - S3_BUCKET=my-s3-bucket
     - S3_ENDPOINT=s3.endpoint.example.com
     - BACKUP_FOLDER=prod/db/
