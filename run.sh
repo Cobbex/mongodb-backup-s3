@@ -32,7 +32,7 @@ if mongodump --host ${MONGODB_HOST} --port ${MONGODB_PORT} ${USER_STR}${PASS_STR
 else
     echo "  > Dump failed"
 fi
-if aws s3 cp \${BACKUP_FILE_NAME} \${S3_BACKUP_PATH} --endpoint-url=\${S3_ENDPOINT} --cli-connect-timeout=60000 ;then
+if aws s3 cp \${BACKUP_FILE_NAME} \${S3_BACKUP_PATH} --endpoint-url=\${S3_ENDPOINT} --cli-connect-timeout 6000 ;then
     echo "  > Copy succeeded"
 else
     echo "  > Copy failed"
