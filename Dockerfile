@@ -33,6 +33,7 @@ RUN echo "System dependencies" && \
   bash \
   curl \
   git \
+  tini \
   make \
   ca-certificates && \
   echo "MongoDB dependencies" && \

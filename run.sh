@@ -84,8 +84,8 @@ if [ -n "${INIT_RESTORE}" ]; then
 fi
 
 if [ -z "${DISABLE_CRON}" ]; then
-    echo "${CRON_TIME} . /root/project_env.sh; /backup.sh >> /mongo_backup.log 2>&1" > /crontab.conf
-    crontab  /crontab.conf
+    echo "${CRON_TIME} . /root/project_env.sh; /backup.sh >> /mongo_backup.log 2>&1" > /var/spool/cron/crontabs/root
+    crontab /var/spool/cron/crontabs/root
     echo "=> Running cron job"
-    cron && tail -f /mongo_backup.log
+    crond && tail -f /mongo_backup.log
 fi
