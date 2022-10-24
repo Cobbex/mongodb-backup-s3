@@ -27,19 +27,19 @@ BACKUP_FILE_NAME=\${TIMESTAMP}.dump.gz
 S3_BACKUP_PATH=${S3PATH}${BACKUP_FILE_NAME}
 echo "=> Backup started"
 if mongodump --host ${MONGODB_HOST} --port ${MONGODB_PORT} ${USER_STR}${PASS_STR}${DB_STR} --archive=\${BACKUP_FILE_NAME} --gzip ${EXTRA_OPTS} ;then
-    echo "   > Dump succeeded"
+    echo "  > Dump succeeded"
 else
-    echo "   > Dump failed"
+    echo "  > Dump failed"
 fi
 if aws s3 cp \${BACKUP_FILE_NAME} \${S3_BACKUP_PATH} --endpoint-url=\${S3_ENDPOINT} --cli-connect-timeout=60000 ;then
-    echo "   > Copy succeeded"
+    echo "  > Copy succeeded"
 else
-    echo "   > Copy failed"
+    echo "  > Copy failed"
 fi
 if rm \${BACKUP_FILE_NAME} ;then
-    echo "   > Remove local file succeeded"
+    echo "  > Remove local file succeeded"
 else
-    echo "   > Remove local file failed"
+    echo "  > Remove local file failed"
 fi
 echo "=> Done"
 EOF
@@ -58,9 +58,9 @@ fi
 S3RESTORE=${S3PATH}\${RESTORE_ME}
 echo "=> Restore database from \${RESTORE_ME}"
 if aws s3 cp \${S3RESTORE} \${RESTORE_ME} --endpoint-url=\${S3_ENDPOINT} && mongorestore --host ${MONGODB_HOST} --port ${MONGODB_PORT} ${USER_STR}${PASS_STR}${DB_STR} --drop ${EXTRA_OPTS} --archive=\${RESTORE_ME} --gzip && rm \${RESTORE_ME}; then
-    echo "   Restore succeeded"
+    echo "  Restore succeeded"
 else
-    echo "   Restore failed"
+    echo "  Restore failed"
 fi
 echo "=> Done"
 EOF
