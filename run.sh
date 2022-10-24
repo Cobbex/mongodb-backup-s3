@@ -26,10 +26,20 @@ TIMESTAMP=\`/bin/date +"%Y%m%dT%H%M%S"\`
 BACKUP_FILE_NAME=\${TIMESTAMP}.dump.gz
 S3_BACKUP_PATH=${S3PATH}${BACKUP_FILE_NAME}
 echo "=> Backup started"
-if mongodump --host ${MONGODB_HOST} --port ${MONGODB_PORT} ${USER_STR}${PASS_STR}${DB_STR} --archive=\${BACKUP_FILE_NAME} --gzip ${EXTRA_OPTS} && aws s3 cp ${BACKUP_FILE_NAME} ${S3_BACKUP_PATH} --endpoint-url=${S3_ENDPOINT} && rm ${BACKUP_FILE_NAME} ;then
-    echo "   > Backup succeeded"
+if mongodump --host ${MONGODB_HOST} --port ${MONGODB_PORT} ${USER_STR}${PASS_STR}${DB_STR} --archive=\${BACKUP_FILE_NAME} --gzip ${EXTRA_OPTS} ;then
+    echo "   > Dump succeeded"
 else
-    echo "   > Backup failed"
+    echo "   > Dump failed"
+fi
+if aws s3 cp ${BACKUP_FILE_NAME} ${S3_BACKUP_PATH} --endpoint-url=${S3_ENDPOINT} ;then
+    echo "   > Copy succeeded"
+else
+    echo "   > Copy failed"
+fi
+if rm ${BACKUP_FILE_NAME} ;then
+    echo "   > Remove local file succeeded"
+else
+    echo "   > Remove local file failed"
 fi
 echo "=> Done"
 EOF
