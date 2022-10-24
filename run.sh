@@ -62,7 +62,7 @@ echo "=> Creating list script"
 rm -f /listbackups.sh
 cat <<EOF >> /listbackups.sh
 #!/bin/bash
-aws s3 ls ${S3PATH}
+aws s3 ls ${S3PATH} --endpoint-url=\${S3_ENDPOINT}
 EOF
 chmod +x /listbackups.sh
 echo "=> List script created"
